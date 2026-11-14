@@ -118,6 +118,17 @@ data "aws_ssm_parameter" "amzn2_latest_ami" {
 
 # EC2作成
 resource "aws_instance" "handson_ec2"{
+  # IMDSv2 を必須にする (SSRF 経由のインスタンスメタデータ窃取対策)
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
+  # ルートボリュームを暗号化する
+  root_block_device {
+    encrypted = true
+  }
+
   ami                         = data.aws_ssm_parameter.amzn2_latest_ami.value
   instance_type               = "t2.micro"
   availability_zone           = "${var.az_a}"
